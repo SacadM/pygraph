@@ -23,7 +23,8 @@ def main():
     elif plot_type == '3D':
         plotter.plot_3d(function, x_range, y_range, num_points)
     elif plot_type == 'parametric':
-        plotter.plot_parametric(function, x_range, num_points)
+        x_func, y_func = function.split(',')
+        plotter.plot_parametric(x_func.strip(), y_func.strip(), x_range, num_points)
     elif plot_type == 'polar':
         plotter.plot_polar(function, x_range, num_points)
 
@@ -31,9 +32,11 @@ def main():
         math_ops.plot_derivative(function, x_range, num_points)
     if args.integral:
         math_ops.plot_integral(function, x_range, num_points)
+    if args.taylor:
+        math_ops.plot_taylor_series(function, x_range, num_points, n=args.taylor)
 
     if args.export:
-        exporter.export_plot(args.export_format)
+        exporter.export_plot(plotter.current_plot, args.export)
     
     if args.annotate:
         annotations.add_annotations(function, plotter.current_plot)
