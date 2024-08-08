@@ -17,6 +17,7 @@ def main():
     x_range = args.x_range
     y_range = args.y_range
     num_points = args.num_points
+    show_plots = not args.no_show
 
     if plot_type == '2D':
         plotter.plot_2d(function, x_range, num_points)
@@ -40,6 +41,12 @@ def main():
     
     if args.annotate:
         annotations.add_annotations(function, plotter.current_plot)
+
+    if show_plots:
+        if plotter.current_plot:
+            plotter.current_plot.show()
+        if math_ops.current_plot:
+            math_ops.current_plot.show()
 
 if __name__ == "__main__":
     main()

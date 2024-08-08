@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import numpy as np
 import sympy as sp
 
@@ -8,17 +9,20 @@ class Plotter:
 
     def parse_function(self, func_str):
         x, y, t = sp.symbols('x y t')
-        func = sp.sympify(func_str)
+        func = sp.sympify(func_str, locals={'cos': sp.cos, 'sin': sp.sin})
         return func
 
     def evaluate_function(self, func, x_vals, y_vals=None):
         x, y, t = sp.symbols('x y t')
         if y_vals is not None:
-            f = sp.lambdify((x, y), func, 'numpy')
+            f = sp.lambdify((x, y), func, modules=['numpy'])
             return f(x_vals, y_vals)
+        elif 't' in str(func):
+            f = sp.lambdify(t, func, modules=['numpy'])
+            return np.array(f(x_vals), dtype=float)
         else:
-            f = sp.lambdify(x, func, 'numpy')
-            return f(x_vals)
+            f = sp.lambdify(x, func, modules=['numpy'])
+            return np.array(f(x_vals), dtype=float)
 
     def plot_2d(self, func_str, x_range, num_points):
         func = self.parse_function(func_str)
@@ -28,7 +32,6 @@ class Plotter:
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=func_str))
         fig.update_layout(title=f'Plot of {func_str}', xaxis_title='x', yaxis_title='f(x)')
-        fig.show()
         self.current_plot = fig
 
     def plot_3d(self, func_str, x_range, y_range, num_points):
@@ -43,12 +46,12 @@ class Plotter:
             xaxis_title='x',
             yaxis_title='y',
             zaxis_title='f(x, y)'))
-        fig.show()
         self.current_plot = fig
 
     def plot_parametric(self, x_func_str, y_func_str, t_range, num_points):
-        x_func = self.parse_function(x_func_str)
-        y_func = self.parse_function(y_func_str)
+        t = sp.symbols('t')
+        x_func = sp.sympify(x_func_str, locals={'cos': sp.cos, 'sin': sp.sin})
+        y_func = sp.sympify(y_func_str, locals={'cos': sp.cos, 'sin': sp.sin})
         t_vals = np.linspace(t_range[0], t_range[1], num_points)
         x_vals = self.evaluate_function(x_func, t_vals)
         y_vals = self.evaluate_function(y_func, t_vals)
@@ -56,11 +59,11 @@ class Plotter:
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=f'{x_func_str}, {y_func_str}'))
         fig.update_layout(title=f'Parametric Plot', xaxis_title='x(t)', yaxis_title='y(t)')
-        fig.show()
         self.current_plot = fig
 
     def plot_polar(self, func_str, theta_range, num_points):
-        func = self.parse_function(func_str)
+        theta = sp.symbols('theta')
+        func = sp.sympify(func_str, locals={'cos': sp.cos, 'sin': sp.sin})
         theta_vals = np.linspace(theta_range[0], theta_range[1], num_points)
         r_vals = self.evaluate_function(func, theta_vals)
 
@@ -70,11 +73,10 @@ class Plotter:
             radialaxis=dict(visible=True),
             angularaxis=dict(visible=True)
         ))
-        fig.show()
         self.current_plot = fig
 
     def plot_multiplot(self, func_str_list, x_range, num_points, rows, cols):
-        fig = sp.make_subplots(rows=rows, cols=cols, subplot_titles=func_str_list)
+        fig = make_subplots(rows=rows, cols=cols, subplot_titles=func_str_list)
 
         for i, func_str in enumerate(func_str_list):
             func = self.parse_function(func_str)
@@ -85,5 +87,4 @@ class Plotter:
             fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=func_str), row=row, col=col)
 
         fig.update_layout(title='Multiplot Layout')
-        fig.show()
         self.current_plot = fig

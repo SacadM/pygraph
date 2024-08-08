@@ -15,5 +15,6 @@ def parse_cli_args():
     parser.add_argument('--multiplot', nargs='+', help="List of functions to plot in a multiplot layout.")
     parser.add_argument('--rows', type=int, default=1, help="Number of rows in multiplot layout.")
     parser.add_argument('--cols', type=int, default=1, help="Number of columns in multiplot layout.")
+    parser.add_argument('--no_show', action='store_true', help="Do not show plots interactively.")
 
     return parser.parse_args()
