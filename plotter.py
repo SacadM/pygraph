@@ -2,6 +2,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 import sympy as sp
+import csv
 
 class Plotter:
     def __init__(self):
@@ -86,4 +87,19 @@ class Plotter:
             fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=func_str), row=row, col=col)
 
         fig.update_layout(title='Multiplot Layout', hovermode='x unified')
+        self.current_plot = fig
+
+    def plot_csv(self, csv_file, increment):
+        x_vals = []
+        y_vals = []
+        
+        with open(csv_file, newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for i, row in enumerate(reader):
+                x_vals.append(i * increment)
+                y_vals.append(float(row[0]))  # Assuming the CSV has one column of data points
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines+markers', name='CSV Data'))
+        fig.update_layout(title='Plot of CSV Data', xaxis_title='Index', yaxis_title='Value')
         self.current_plot = fig

@@ -1,9 +1,11 @@
 import argparse
 
 def parse_cli_args():
-    parser = argparse.ArgumentParser(description="Plot mathematical functions.")
-    parser.add_argument('function', type=str, help="Mathematical function to plot (e.g., 'x**2', 'sin(x)', 'x**2 + y**2'). For parametric, provide 'x(t), y(t)'.")
-    parser.add_argument('plot_type', type=str, choices=['2D', '3D', 'parametric', 'polar'], help="Type of plot: '2D', '3D', 'parametric', 'polar'.")
+    parser = argparse.ArgumentParser(description="Plot mathematical functions or CSV data.")
+    parser.add_argument('function', type=str, nargs='?', default=None, help="Mathematical function to plot (e.g., 'x**2', 'sin(x)', 'x**2 + y**2'). For parametric, provide 'x(t), y(t)'. If --csv is provided, this argument is optional.")
+    parser.add_argument('plot_type', type=str, choices=['2D', '3D', 'parametric', 'polar', 'csv'], help="Type of plot: '2D', '3D', 'parametric', 'polar', 'csv'.")
+    parser.add_argument('--csv', type=str, help="Path to CSV file containing data points to plot.")
+    parser.add_argument('--increment', type=float, default=1, help="Increment between each item of the CSV data (default: 1).")
     parser.add_argument('--x_range', type=float, nargs=2, default=[-10, 10], help="Range of x values (default: [-10, 10]).")
     parser.add_argument('--y_range', type=float, nargs=2, default=[-10, 10], help="Range of y values for 3D plot (default: [-10, 10]).")
     parser.add_argument('--num_points', type=int, default=1000, help="Number of points to plot (default: 1000).")

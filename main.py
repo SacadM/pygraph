@@ -20,7 +20,9 @@ def main():
     num_points = args.num_points
     show_plots = not args.no_show
 
-    if plot_type == '2D':
+    if plot_type == 'csv' and args.csv:
+        plotter.plot_csv(args.csv, args.increment)
+    elif plot_type == '2D':
         plotter.plot_2d(function, x_range, num_points)
     elif plot_type == '3D':
         plotter.plot_3d(function, x_range, y_range, num_points)
