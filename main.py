@@ -4,6 +4,8 @@ from export import Exporter
 from annotations import Annotations
 from cli import parse_cli_args
 import sympy as sp
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 def main():
     args = parse_cli_args()
@@ -21,7 +23,7 @@ def main():
     show_plots = not args.no_show
 
     if plot_type == 'csv' and args.csv:
-        plotter.plot_csv(args.csv, args.increment)
+        plotter.plot_csv(args.csv, args.increment, args.forecast)
     elif plot_type == '2D':
         plotter.plot_2d(function, x_range, num_points)
     elif plot_type == '3D':
@@ -46,7 +48,6 @@ def main():
         if args.annotate is True:  # No condition provided, use default behavior
             annotate_condition = None
         else:
-            # Convert the string condition into a function
             def condition_func_factory(cond_str):
                 x, y = sp.symbols('x y')
                 return eval(f"lambda x, y: {cond_str}")

@@ -6,6 +6,7 @@ def parse_cli_args():
     parser.add_argument('plot_type', type=str, choices=['2D', '3D', 'parametric', 'polar', 'csv'], help="Type of plot: '2D', '3D', 'parametric', 'polar', 'csv'.")
     parser.add_argument('--csv', type=str, help="Path to CSV file containing data points to plot.")
     parser.add_argument('--increment', type=float, default=1, help="Increment between each item of the CSV data (default: 1).")
+    parser.add_argument('--forecast', type=int, default=0, help="Number of points to forecast (default: 0).")
     parser.add_argument('--x_range', type=float, nargs=2, default=[-10, 10], help="Range of x values (default: [-10, 10]).")
     parser.add_argument('--y_range', type=float, nargs=2, default=[-10, 10], help="Range of y values for 3D plot (default: [-10, 10]).")
     parser.add_argument('--num_points', type=int, default=1000, help="Number of points to plot (default: 1000).")

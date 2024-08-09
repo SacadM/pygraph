@@ -2,7 +2,10 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 import sympy as sp
-import csv
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+import pandas as pd
 
 class Plotter:
     def __init__(self):
@@ -89,17 +92,65 @@ class Plotter:
         fig.update_layout(title='Multiplot Layout', hovermode='x unified')
         self.current_plot = fig
 
-    def plot_csv(self, csv_file, increment):
-        x_vals = []
-        y_vals = []
+    def plot_csv(self, csv_file, increment, forecast_steps=0):
+        data = pd.read_csv(csv_file, header=None, names=['value'])
+        data['time'] = range(len(data))
         
-        with open(csv_file, newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for i, row in enumerate(reader):
-                x_vals.append(i * increment)
-                y_vals.append(float(row[0]))  # Assuming the CSV has one column of data points
+        def create_features(df, lags):
+            for lag in lags:
+                df[f'lag_{lag}'] = df['value'].shift(lag)
+            return df.dropna()
+
+        lags = [1, 2, 3, 4, 5]
+        data_featured = create_features(data, lags)
+
+        X = data_featured.drop(['value', 'time'], axis=1)
+        y = data_featured['value']
+
+        if len(X) <= forecast_steps:
+            print(f"Warning: Not enough data points for forecasting. Reducing forecast to {len(X) - 1} points.")
+            forecast_steps = len(X) - 1
+
+        train_size = max(len(X) - forecast_steps, 1)  # at least one training point
+        X_train, X_test = X[:train_size], X[train_size:]
+        y_train, y_test = y[:train_size], y[train_size:]
+
+        # scale features
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        
+        # train
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X_train_scaled, y_train)
+
+        def forecast(model, steps, last_known_values):
+            predictions = []
+            current_input = last_known_values.copy()
+            
+            for _ in range(steps):
+                pred = model.predict(scaler.transform([current_input]))[0]
+                predictions.append(pred)
+                current_input = np.roll(current_input, 1)
+                current_input[0] = pred
+            
+            return predictions
+        
+        last_known = X.iloc[-1].values
+        y_pred = forecast(model, forecast_steps, last_known)
 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines+markers', name='CSV Data'))
-        fig.update_layout(title='Plot of CSV Data', xaxis_title='Index', yaxis_title='Value')
+
+        # plot original
+        fig.add_trace(go.Scatter(x=data['time'].tolist(), y=data['value'].tolist(), mode='lines', name='Original Data'))
+
+        # plot forecast
+        forecast_start = len(data)
+        forecast_x = list(range(forecast_start, forecast_start + len(y_pred)))
+        fig.add_trace(go.Scatter(x=forecast_x, y=y_pred, mode='lines', name='Forecast', line=dict(dash='dash')))
+
+        fig.update_layout(title='CSV Data with Random Forest Forecast', 
+                        xaxis_title='Time', 
+                        yaxis_title='Value',
+                        hovermode='x unified')
+        
         self.current_plot = fig
