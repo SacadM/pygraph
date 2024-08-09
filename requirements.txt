@@ -1,4 +1,6 @@
 plotly
-numpy
 sympy
+numpy
 argparse
+matplotlib
+mpl_toolkits
