@@ -3,6 +3,7 @@ from math_ops import MathOps
 from export import Exporter
 from annotations import Annotations
 from cli import parse_cli_args
+import sympy as sp
 
 def main():
     args = parse_cli_args()
@@ -40,7 +41,17 @@ def main():
         exporter.export_plot(plotter.current_plot, args.export)
     
     if args.annotate:
-        annotations.add_annotations(function, plotter.current_plot)
+        if args.annotate is True:  # No condition provided, use default behavior
+            annotate_condition = None
+        else:
+            # Convert the string condition into a function
+            def condition_func_factory(cond_str):
+                x, y = sp.symbols('x y')
+                return eval(f"lambda x, y: {cond_str}")
+
+            annotate_condition = condition_func_factory(args.annotate)
+
+        annotations.add_annotations(function, plotter.current_plot, x_range, num_points, annotate_on_condition=annotate_condition)
 
     if show_plots:
         if plotter.current_plot:

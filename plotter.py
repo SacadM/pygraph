@@ -31,7 +31,7 @@ class Plotter:
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=func_str))
-        fig.update_layout(title=f'Plot of {func_str}', xaxis_title='x', yaxis_title='f(x)')
+        fig.update_layout(title=f'Plot of {func_str}', xaxis_title='x', yaxis_title='f(x)', hovermode='x unified')
         self.current_plot = fig
 
     def plot_3d(self, func_str, x_range, y_range, num_points):
@@ -45,7 +45,7 @@ class Plotter:
         fig.update_layout(title=f'3D Plot of {func_str}', scene=dict(
             xaxis_title='x',
             yaxis_title='y',
-            zaxis_title='f(x, y)'))
+            zaxis_title='f(x, y)'), hovermode='closest')
         self.current_plot = fig
 
     def plot_parametric(self, x_func_str, y_func_str, t_range, num_points):
@@ -58,7 +58,7 @@ class Plotter:
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=f'{x_func_str}, {y_func_str}'))
-        fig.update_layout(title=f'Parametric Plot', xaxis_title='x(t)', yaxis_title='y(t)')
+        fig.update_layout(title=f'Parametric Plot', xaxis_title='x(t)', yaxis_title='y(t)', hovermode='x unified')
         self.current_plot = fig
 
     def plot_polar(self, func_str, theta_range, num_points):
@@ -71,8 +71,7 @@ class Plotter:
         fig.add_trace(go.Scatterpolar(r=r_vals, theta=theta_vals * 180/np.pi, mode='lines', name=func_str))
         fig.update_layout(title=f'Polar Plot of {func_str}', polar=dict(
             radialaxis=dict(visible=True),
-            angularaxis=dict(visible=True)
-        ))
+            angularaxis=dict(visible=True)), hovermode='closest')
         self.current_plot = fig
 
     def plot_multiplot(self, func_str_list, x_range, num_points, rows, cols):
@@ -86,5 +85,5 @@ class Plotter:
             col = i % cols + 1
             fig.add_trace(go.Scatter(x=x_vals, y=y_vals, mode='lines', name=func_str), row=row, col=col)
 
-        fig.update_layout(title='Multiplot Layout')
+        fig.update_layout(title='Multiplot Layout', hovermode='x unified')
         self.current_plot = fig
